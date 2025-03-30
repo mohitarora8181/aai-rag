@@ -1,0 +1,4 @@
+.venv
+poppler-24.08.0
+app.py
+.env
