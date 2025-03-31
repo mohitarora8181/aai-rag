@@ -195,7 +195,11 @@ def main():
         input_path = os.path.join("./content/", input_data.name)
         with open(input_path, "wb") as f:
           f.write(input_data.getvalue())
-          extract_page_content(input_path)
+          try:
+              extract_page_content(input_path)
+          except Exception as e:
+              st.error(f"Error in detection: {str(e)}")
+                
           
     if (st.session_state.group_block and st.session_state.group_text):
         query = st.text_input("Ask your question")
