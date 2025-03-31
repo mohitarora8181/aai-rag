@@ -1,0 +1,13 @@
+opencv-python
+PyMuPDF
+pdf2image
+langchain
+transformers
+torch
+faiss-cpu
+numpy
+langchain-community
+sentence-transformers
+langchain-huggingface
+easyocr
+streamlit
