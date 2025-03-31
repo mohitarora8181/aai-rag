@@ -10,12 +10,12 @@ import streamlit as st
 from huggingface_hub import snapshot_download
 from langchain.llms import HuggingFaceHub
 from sentence_transformers import SentenceTransformer, util
-# import logging
+import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 # snapshot_download(repo_id="sentence-transformers/all-MiniLM-L6-v2", repo_type="model")
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
@@ -195,11 +195,8 @@ def main():
         input_path = os.path.join("./content/", input_data.name)
         with open(input_path, "wb") as f:
           f.write(input_data.getvalue())
-          try:
-              extract_page_content(input_path)
-          except Exception as e:
-              st.error(f"Error in detection: {str(e)}")
-                
+          with st.spinner("Extracting data... This may take a while."):
+            extract_page_content(input_path)
           
     if (st.session_state.group_block and st.session_state.group_text):
         query = st.text_input("Ask your question")
