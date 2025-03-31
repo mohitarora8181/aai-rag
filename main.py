@@ -16,6 +16,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # snapshot_download(repo_id="sentence-transformers/all-MiniLM-L6-v2", repo_type="model")
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
@@ -24,7 +25,13 @@ ocr_reader = easyocr.Reader(['en'])
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 def convert_pdf_to_images(pdf_path):
-    return convert_from_path(pdf_path)
+    try:
+        images = convert_from_path(pdf_path)
+        return images
+    except Exception as e:
+        st.error(f"Error converting PDF: {e}")
+        logging.error(f"PDF conversion error: {e}")
+        return None
 
 def pil_to_cv2(pil_image):
     return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)
