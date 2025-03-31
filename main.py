@@ -24,7 +24,7 @@ ocr_reader = easyocr.Reader(['en'])
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 def convert_pdf_to_images(pdf_path):
-    return convert_from_path(pdf_path,poppler_path=r"C:\Users\usar\Documents\work\aai\poppler-24.08.0\Library\bin")
+    return convert_from_path(pdf_path)
 
 def pil_to_cv2(pil_image):
     return cv2.cvtColor(np.array(pil_image), cv2.COLOR_RGB2BGR)

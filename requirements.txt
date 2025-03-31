@@ -11,3 +11,4 @@ sentence-transformers
 langchain-huggingface
 easyocr
 streamlit
+timm
