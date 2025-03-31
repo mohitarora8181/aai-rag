@@ -10,12 +10,12 @@ import streamlit as st
 from huggingface_hub import snapshot_download
 from langchain.llms import HuggingFaceHub
 from sentence_transformers import SentenceTransformer, util
-import logging
+# import logging
 from dotenv import load_dotenv
 
 load_dotenv()
 
-logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+# logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 
 # snapshot_download(repo_id="sentence-transformers/all-MiniLM-L6-v2", repo_type="model")
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
