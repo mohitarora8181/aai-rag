@@ -22,7 +22,7 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
 
 
-@st.cache
+@st.cache_resource
 def load_model():
     return easyocr.Reader(['en'],gpu=False,model_storage_directory=".")
 
