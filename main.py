@@ -22,7 +22,11 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
 
 
-ocr_reader = easyocr.Reader(['en'],gpu=False)
+@st.cache
+def load_model():
+    return easyocr.Reader(['en'],gpu=False,model_storage_directory=".")
+
+ocr_reader = load_model()
 
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
@@ -96,7 +100,7 @@ def extract_page_content(pdf_path):
             img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)            
             if img_masked is not None:
                 st.image(img_masked)
-                ocr_results = ocr_reader.readtext(np.array(img_masked), paragraph=True)
+                ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
                 
             text_blocks = []
             for result in ocr_results:
