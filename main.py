@@ -88,17 +88,21 @@ def extract_page_content(pdf_path):
             img_np = img_np.astype(np.uint8)
             mask = np.ones(image_cv2.shape[:2], dtype=np.uint8) * 255  # Initial mask with white (255)
 
-            # for y0, x0, y1, x1 in table_boxes:
-            #     mask[y0:y1, x0:x1] = 0
-            # if mask.shape[:2] != img_np.shape[:2]:
-            #     mask = cv2.resize(mask, (img_np.shape[1], img_np.shape[0]))
+            for y0, x0, y1, x1 in table_boxes:
+                mask[y0:y1, x0:x1] = 0
+            if mask.shape[:2] != img_np.shape[:2]:
+                mask = cv2.resize(mask, (img_np.shape[1], img_np.shape[0]))
 
-            # img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
+            img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
 
-            # pix = page.get_pixmap()
-            # img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+            pix = page.get_pixmap()
+            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-            # ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
+            try:
+                ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
+            except Exception as e:
+                logging.error(f"Error in ocr : {e}")
+                
 
             text_blocks = []
             # for result in ocr_results:
