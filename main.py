@@ -8,7 +8,6 @@ import io
 from PIL import Image
 import fitz
 import streamlit as st
-from huggingface_hub import snapshot_download
 from langchain.llms import HuggingFaceHub
 from sentence_transformers import SentenceTransformer, util
 import logging
@@ -20,14 +19,10 @@ load_dotenv()
 logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
 logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-# snapshot_download(repo_id="sentence-transformers/all-MiniLM-L6-v2", repo_type="model")
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
 
-@st.cache_resource
-def load_easyocr():
-    return easyocr.Reader(['en'],gpu=False)
 
-ocr_reader = load_easyocr()
+ocr_reader = easyocr.Reader(['en'],gpu=False)
 
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
@@ -98,15 +93,11 @@ def extract_page_content(pdf_path):
             if mask.shape[:2] != img_np.shape[:2]:
                 mask = cv2.resize(mask, (img_np.shape[1], img_np.shape[0]))
 
-            img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
-
-            pix = page.get_pixmap()
-            img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
-
-            
-            ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
+            img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)            
+            if img_masked is not None:
+                st.image(img_masked)
+                ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
                 
-
             text_blocks = []
             for result in ocr_results:
                 bbox, text = result[0], result[1]
