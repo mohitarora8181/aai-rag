@@ -23,7 +23,12 @@ logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %
 # snapshot_download(repo_id="sentence-transformers/all-MiniLM-L6-v2", repo_type="model")
 pipe = pipeline("object-detection", model="microsoft/table-transformer-detection")
 
-ocr_reader = easyocr.Reader(['en'])
+@st.cache_resource
+def load_easyocr():
+    return easyocr.Reader(['en'],gpu=False)
+
+ocr_reader = load_easyocr()
+
 embedding_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
 
 def convert_pdf_to_images(pdf_path):
@@ -98,31 +103,29 @@ def extract_page_content(pdf_path):
             pix = page.get_pixmap()
             img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-            try:
-                ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
-            except Exception as e:
-                logging.error(f"Error in ocr : {e}")
+            
+            ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
                 
 
             text_blocks = []
-            # for result in ocr_results:
-            #     bbox, text = result[0], result[1]
-            #     top_left_y = int(bbox[0][1])
-            #     text_blocks.append((top_left_y, {"type": "plain_text", "text": text}))
+            for result in ocr_results:
+                bbox, text = result[0], result[1]
+                top_left_y = int(bbox[0][1])
+                text_blocks.append((top_left_y, {"type": "plain_text", "text": text}))
 
-            # for y0, x0, y1, x1 in table_boxes:
-            #     table_image = image.crop((x0, y0, x1, y1))
-            #     table_image_cv2 = pil_to_cv2(table_image)
-            #     table_ocr_results = ocr_reader.readtext(table_image_cv2)
+            for y0, x0, y1, x1 in table_boxes:
+                table_image = image.crop((x0, y0, x1, y1))
+                table_image_cv2 = pil_to_cv2(table_image)
+                table_ocr_results = ocr_reader.readtext(table_image_cv2)
 
-            #     table_cells = [result[1] for result in table_ocr_results]
+                table_cells = [result[1] for result in table_ocr_results]
 
-            #     text_blocks.append((y0, {
-            #         "type": "table",
-            #         "bounding_box": [x0, y0, x1, y1],
-            #         "extracted_text": table_cells
-            #     }))
-            # text_blocks.sort(key=lambda x: x[0])
+                text_blocks.append((y0, {
+                    "type": "table",
+                    "bounding_box": [x0, y0, x1, y1],
+                    "extracted_text": table_cells
+                }))
+            text_blocks.sort(key=lambda x: x[0])
 
             page_content = [block[1] for block in text_blocks]
 
