@@ -67,14 +67,7 @@ def extract_page_content(pdf_path):
                 logging.error(f"Error converting PDF to images: {e}")
                 st.error(f"Error processing PDF with pdf2image: {e}")
                 images = None 
-        finally:
-            try:
-                os.unlink(temp_file_path)
-                logging.info(f"Deleted temporary file: {temp_file_path}")
-            except (OSError, IOError) as e:
-                logging.warning(
-                    f"Failed to delete temporary file {temp_file_path}: {e}"
-                )
+                
     if images :
         doc = fitz.open(stream=pdf_stream,filetype="pdf")
         extracted_data = []
