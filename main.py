@@ -83,10 +83,10 @@ def extract_page_content(pdf_path):
                     x0, y0, x1, y1 = int(box['xmin']), int(box['ymin']), int(box['xmax']), int(box['ymax'])
                     table_boxes.append((y0, x0, y1, x1))  # Store as (y0, x0, y1, x1) for easier sorting
 
-            # image_cv2 = pil_to_cv2(image)
-            # img_np = np.array(image)
-            # img_np = img_np.astype(np.uint8)
-            # mask = np.ones(image_cv2.shape[:2], dtype=np.uint8) * 255  # Initial mask with white (255)
+            image_cv2 = pil_to_cv2(image)
+            img_np = np.array(image)
+            img_np = img_np.astype(np.uint8)
+            mask = np.ones(image_cv2.shape[:2], dtype=np.uint8) * 255  # Initial mask with white (255)
 
             # for y0, x0, y1, x1 in table_boxes:
             #     mask[y0:y1, x0:x1] = 0
