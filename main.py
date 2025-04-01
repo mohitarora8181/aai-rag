@@ -4,6 +4,7 @@ from transformers import pipeline
 from pdf2image import convert_from_path
 import easyocr
 import cv2
+import io
 from PIL import Image
 import fitz
 import streamlit as st
@@ -43,7 +44,7 @@ if 'group_text' not in st.session_state:
 
 def extract_page_content(pdf_path):
     images = convert_pdf_to_images(pdf_path)
-    doc = fitz.open(pdf_path)
+    doc = fitz.open(io.BytesIO(pdf_path),filetype="pdf")
     extracted_data = []
 
     for page_num, (image, page) in enumerate(zip(images, doc), 1):
