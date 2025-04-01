@@ -68,107 +68,107 @@ def extract_page_content(pdf_path):
                 st.error(f"Error processing PDF with pdf2image: {e}")
                 images = None 
                 
-    if images :
-        doc = fitz.open(stream=pdf_stream,filetype="pdf")
-        extracted_data = []
+    # if images :
+    #     doc = fitz.open(stream=pdf_stream,filetype="pdf")
+    #     extracted_data = []
 
-        for page_num, (image, page) in enumerate(zip(images, doc), 1):
-            page_content = []
-            detections = pipe(image)
-            table_boxes = []
+    #     for page_num, (image, page) in enumerate(zip(images, doc), 1):
+    #         page_content = []
+    #         detections = pipe(image)
+    #         table_boxes = []
 
-            for detection in detections:
-                if 'box' in detection:
-                    box = detection['box']
-                    x0, y0, x1, y1 = int(box['xmin']), int(box['ymin']), int(box['xmax']), int(box['ymax'])
-                    table_boxes.append((y0, x0, y1, x1))  # Store as (y0, x0, y1, x1) for easier sorting
+    #         for detection in detections:
+    #             if 'box' in detection:
+    #                 box = detection['box']
+    #                 x0, y0, x1, y1 = int(box['xmin']), int(box['ymin']), int(box['xmax']), int(box['ymax'])
+    #                 table_boxes.append((y0, x0, y1, x1))  # Store as (y0, x0, y1, x1) for easier sorting
 
-            image_cv2 = pil_to_cv2(image)
-            img_np = np.array(image)
-            img_np = img_np.astype(np.uint8)
-            mask = np.ones(image_cv2.shape[:2], dtype=np.uint8) * 255  # Initial mask with white (255)
+    #         image_cv2 = pil_to_cv2(image)
+    #         img_np = np.array(image)
+    #         img_np = img_np.astype(np.uint8)
+    #         mask = np.ones(image_cv2.shape[:2], dtype=np.uint8) * 255  # Initial mask with white (255)
 
-            for y0, x0, y1, x1 in table_boxes:
-                mask[y0:y1, x0:x1] = 0
-            if mask.shape[:2] != img_np.shape[:2]:
-                mask = cv2.resize(mask, (img_np.shape[1], img_np.shape[0]))
+    #         for y0, x0, y1, x1 in table_boxes:
+    #             mask[y0:y1, x0:x1] = 0
+    #         if mask.shape[:2] != img_np.shape[:2]:
+    #             mask = cv2.resize(mask, (img_np.shape[1], img_np.shape[0]))
 
-            img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
+    #         img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
 
-            # pix = page.get_pixmap()
-            # img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+    #         # pix = page.get_pixmap()
+    #         # img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
-            ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
+    #         ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
 
-            text_blocks = []
-            for result in ocr_results:
-                bbox, text = result[0], result[1]
-                top_left_y = int(bbox[0][1])
-                text_blocks.append((top_left_y, {"type": "plain_text", "text": text}))
+    #         text_blocks = []
+    #         for result in ocr_results:
+    #             bbox, text = result[0], result[1]
+    #             top_left_y = int(bbox[0][1])
+    #             text_blocks.append((top_left_y, {"type": "plain_text", "text": text}))
 
-            for y0, x0, y1, x1 in table_boxes:
-                table_image = image.crop((x0, y0, x1, y1))
-                table_image_cv2 = pil_to_cv2(table_image)
-                table_ocr_results = ocr_reader.readtext(table_image_cv2)
+    #         for y0, x0, y1, x1 in table_boxes:
+    #             table_image = image.crop((x0, y0, x1, y1))
+    #             table_image_cv2 = pil_to_cv2(table_image)
+    #             table_ocr_results = ocr_reader.readtext(table_image_cv2)
 
-                table_cells = [result[1] for result in table_ocr_results]
+    #             table_cells = [result[1] for result in table_ocr_results]
 
-                text_blocks.append((y0, {
-                    "type": "table",
-                    "bounding_box": [x0, y0, x1, y1],
-                    "extracted_text": table_cells
-                }))
-            text_blocks.sort(key=lambda x: x[0])
+    #             text_blocks.append((y0, {
+    #                 "type": "table",
+    #                 "bounding_box": [x0, y0, x1, y1],
+    #                 "extracted_text": table_cells
+    #             }))
+    #         text_blocks.sort(key=lambda x: x[0])
 
-            page_content = [block[1] for block in text_blocks]
+    #         page_content = [block[1] for block in text_blocks]
 
-            extracted_data.append({
-                "page_number": page_num,
-                "content": page_content
-            })
+    #         extracted_data.append({
+    #             "page_number": page_num,
+    #             "content": page_content
+    #         })
             
-        grouped_blocks = []
+    #     grouped_blocks = []
 
-        for page in extracted_data:
-            page_number = page['page_number']
-            page_content = page['content']
+    #     for page in extracted_data:
+    #         page_number = page['page_number']
+    #         page_content = page['content']
 
-            current_group = []
-            for i, content in enumerate(page_content):
-                current_group.append(content)
-                is_last_block = (i == len(page_content) - 1)
-                next_is_table = (not is_last_block and page_content[i + 1]["type"] == "table")
-                current_is_table = content["type"] == "table"
+    #         current_group = []
+    #         for i, content in enumerate(page_content):
+    #             current_group.append(content)
+    #             is_last_block = (i == len(page_content) - 1)
+    #             next_is_table = (not is_last_block and page_content[i + 1]["type"] == "table")
+    #             current_is_table = content["type"] == "table"
 
-                if current_is_table or next_is_table:
-                    continue
+    #             if current_is_table or next_is_table:
+    #                 continue
 
-                if current_group:
-                    grouped_blocks.append({
-                        "page_number": page_number,
-                        "group_content": current_group,
-                    })
-                    current_group = []
+    #             if current_group:
+    #                 grouped_blocks.append({
+    #                     "page_number": page_number,
+    #                     "group_content": current_group,
+    #                 })
+    #                 current_group = []
 
-            if current_group:
-                grouped_blocks.append({
-                    "page_number": page_number,
-                    "group_content": current_group,
-                })
+    #         if current_group:
+    #             grouped_blocks.append({
+    #                 "page_number": page_number,
+    #                 "group_content": current_group,
+    #             })
 
-        group_texts = []
-        for block in grouped_blocks:
-            block_text = ""
-            for content in block["group_content"]:
-                if content["type"] == "plain_text":
-                    block_text += content["text"] + " "
-                elif content["type"] == "table":
-                    table_text = '; '.join([f"[{cell}]" for cell in content["extracted_text"]])
-                    block_text += f"Table Content: {table_text} "
-            group_texts.append(block_text.strip())
+    #     group_texts = []
+    #     for block in grouped_blocks:
+    #         block_text = ""
+    #         for content in block["group_content"]:
+    #             if content["type"] == "plain_text":
+    #                 block_text += content["text"] + " "
+    #             elif content["type"] == "table":
+    #                 table_text = '; '.join([f"[{cell}]" for cell in content["extracted_text"]])
+    #                 block_text += f"Table Content: {table_text} "
+    #         group_texts.append(block_text.strip())
 
-        st.session_state.group_block = grouped_blocks
-        st.session_state.group_text = group_texts
+    #     st.session_state.group_block = grouped_blocks
+    #     st.session_state.group_text = group_texts
 
 def answer_question(query):
     embeddings = embedding_model.encode(st.session_state.group_text, convert_to_tensor=True)
