@@ -99,7 +99,6 @@ def extract_page_content(pdf_path):
 
             img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)            
             if img_masked is not None:
-                st.image(img_masked)
                 ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
                 
             text_blocks = []
