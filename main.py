@@ -44,7 +44,7 @@ if 'group_text' not in st.session_state:
 
 def extract_page_content(pdf_path):
     images = convert_pdf_to_images(pdf_path)
-    doc = fitz.open(io.BytesIO(pdf_path),filetype="pdf")
+    doc = fitz.open(stream=io.BytesIO(pdf_path),filetype="pdf")
     extracted_data = []
 
     for page_num, (image, page) in enumerate(zip(images, doc), 1):
@@ -70,8 +70,8 @@ def extract_page_content(pdf_path):
 
         img_masked = cv2.bitwise_and(img_np, img_np, mask=mask)
 
-        pix = page.get_pixmap()
-        img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
+        # pix = page.get_pixmap()
+        # img = Image.frombytes("RGB", [pix.width, pix.height], pix.samples)
 
         ocr_results = ocr_reader.readtext(img_masked, paragraph=True)
 
