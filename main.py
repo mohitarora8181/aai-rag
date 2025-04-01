@@ -199,11 +199,11 @@ def main():
     elif input_type == 'DOCX':
         input_data = st.file_uploader("Upload a DOCX file", type=[ 'docx', 'doc'])
     if st.button("Proceed"):
-        input_path = os.path.join("./content/", input_data.name)
-        with open(input_path, "wb") as f:
-          f.write(input_data.getvalue())
-          with st.spinner("Extracting data... This may take a while."):
-            extract_page_content(input_path)
+        # input_path = os.path.join("./content/", input_data.name)
+        # with open(input_path, "wb") as f:
+        #   f.write(input_data.getvalue())
+        with st.spinner("Extracting data... This may take a while."):
+            extract_page_content(input_data.getvalue())
           
     if (st.session_state.group_block and st.session_state.group_text):
         query = st.text_input("Ask your question")
